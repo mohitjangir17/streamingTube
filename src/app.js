@@ -20,8 +20,10 @@ app.use(e.static('public'))
 import userRoutes from './routes/user.routes.js'
 import videoRoutes from './routes/videos.routes.js'
 import subscriptionRoutes from './routes/subscription.routes.js'
+import tweetRoutes from './routes/tweet.routes.js'
 app.use('/api/v1/users', userRoutes);
 app.use('/api/v1/videos', videoRoutes);
 app.use('/api/v1/subscription', subscriptionRoutes);
+app.use('/api/v1/tweet', tweetRoutes);
 
 export default app;

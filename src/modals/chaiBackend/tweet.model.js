@@ -1,5 +1,5 @@
 import { model, Schema } from "mongoose";
-// import mongooseAggregatePaginate from "mongoose-aggregate-paginate-v2";
+import mongooseAggregatePaginate from "mongoose-aggregate-paginate-v2";
 
 const tweetSchema = new Schema(
     {
@@ -14,5 +14,7 @@ const tweetSchema = new Schema(
     },
     { timestamps: true }
 )
+
+
 
 export const Tweet = model('Tweet', tweetSchema);
