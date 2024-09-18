@@ -25,8 +25,8 @@ router.post('/publish-video',
         },
     ]),
     publishVideo)
-router.get('/all-videos', verifyJwt, getAllVideos)
-router.get('/get-video/:videoId', verifyJwt, getVideoById)
+router.get('/', verifyJwt, getAllVideos)
+router.get('/:videoId/', verifyJwt, getVideoById)
 router.patch('/:videoId/update-video', verifyJwt, fileUpload.single('videoThumbnail'), updateVideo)
 router.delete('/:videoId/delete-video', verifyJwt, deleteVideo)
 router.patch('/:videoId/update-publishedstatus', verifyJwt, togglePublishStatus)
