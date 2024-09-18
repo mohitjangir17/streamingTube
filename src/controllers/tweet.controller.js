@@ -36,7 +36,6 @@ const createTweet = asyncHandler(async (req, res) => {
         )
 
 })
-
 const getUserTweets = asyncHandler(async (req, res) => {
     const userId = req.authorisedUser._id
     const tweetsByUser = await Tweet.find({ owner: userId })

@@ -21,9 +21,11 @@ import userRoutes from './routes/user.routes.js'
 import videoRoutes from './routes/videos.routes.js'
 import subscriptionRoutes from './routes/subscription.routes.js'
 import tweetRoutes from './routes/tweet.routes.js'
+import commentRoutes from './routes/comment.routes.js'
 app.use('/api/v1/users', userRoutes);
 app.use('/api/v1/videos', videoRoutes);
 app.use('/api/v1/subscription', subscriptionRoutes);
 app.use('/api/v1/tweet', tweetRoutes);
+app.use('/api/v1/videos/', commentRoutes);
 
 export default app;
