@@ -8,13 +8,10 @@ import { Subscription } from "../modals/chaiBackend/subscription.models.js"
 const toggleSubscription = asyncHandler(async (req, res) => {
     const { channelId } = req.params
     const userId = req.authorisedUser._id
-    // console.log(`channel:`, channelId, `user:`, _id);
     const isSubscribed = await Subscription.find({ subscriber: userId, channel: channelId })
-    // console.log(isSubscribed[0]._id);
 
     try {
         if (isSubscribed == '') {
-            // console.log('')
             const subscribeChannel = await Subscription.create({
                 subscriber: userId,
                 channel: channelId
