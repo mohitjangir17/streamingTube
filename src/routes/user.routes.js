@@ -40,7 +40,7 @@ router.patch('/update-profile', verifyJwt, updateAccountDetails)
 router.patch('/update-profile-picture', verifyJwt, fileUpload.single("avatar"), updateUserProfilePic)
 router.patch('/update-cover-image', verifyJwt, fileUpload.single("coverImage"), updateUserCoverImage)
 router.get('/c/:username', verifyJwt, gerUserChannelProfile)
-router.get('/history', verifyJwt, getWatchHistory)
+router.get('/:id/history', verifyJwt, getWatchHistory)
 
 
 export default router;

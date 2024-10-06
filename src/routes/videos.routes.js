@@ -7,7 +7,8 @@ import {
     getVideoById,
     updateVideo,
     deleteVideo,
-    togglePublishStatus
+    togglePublishStatus,
+    getMyVideos
 } from "../controllers/video.controller.js"
 
 const router = Router();
@@ -25,8 +26,9 @@ router.post('/publish-video',
         },
     ]),
     publishVideo)
-router.get('/', verifyJwt, getAllVideos)
-router.get('/:videoId/', verifyJwt, getVideoById)
+router.get('/', getAllVideos)
+router.get('/:id/my-videos', getMyVideos)
+router.get('/:videoId/', getVideoById)
 router.patch('/:videoId/update-video', verifyJwt, fileUpload.single('videoThumbnail'), updateVideo)
 router.delete('/:videoId/delete-video', verifyJwt, deleteVideo)
 router.patch('/:videoId/update-publishedstatus', verifyJwt, togglePublishStatus)

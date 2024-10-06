@@ -47,6 +47,8 @@ const getVideoComments = asyncHandler(async (req, res) => {
                         ownerName: "$user.fullName",
                         avatar: "$user.avatar",
                         userId: "$user._id",
+                        createdAt: 1,
+                        updatedAt: 1
                     }
                 }
             ]
@@ -94,7 +96,7 @@ const addComment = asyncHandler(async (req, res) => {
         comment,
         owner: userId,
         video: videoId
-    })
+    },)
 
     if (!newComment) {
         throw new ApiError(
@@ -152,7 +154,6 @@ const updateComment = asyncHandler(async (req, res) => {
 
 const deleteComment = asyncHandler(async (req, res) => {
     const { commentId } = req.params
-
     const deleteTweet = await Comment.findByIdAndDelete(commentId)
 
     if (!deleteTweet) {
