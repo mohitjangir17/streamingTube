@@ -25,7 +25,7 @@ const generateRefreshAndAccessToken = async (userId) => {
 const registerUser = asyncHandler(async (req, res) => {
 
     const { username, email, password, fullName } = req.body
-    // console.log(username, email);
+    // console.log(username, email, password, fullName, req.files?.coverImage[0], req.files?.avatar[0]);
 
     if ([
         fullName, email, password, username
@@ -91,7 +91,7 @@ const loginUser = asyncHandler(async (req, res) => {
     })
 
     if (!user) {
-        throw new ApiError(404, "User not found")
+        throw new ApiError(401, "User not found")
     }
 
     const isPasswordValid = await user.isPasswordCorrect(password);
@@ -139,7 +139,6 @@ const getCurrentUser = asyncHandler(async (req, res) => {
                 )
             )
     }
-
 })
 
 const logoutUser = asyncHandler(async (req, res) => {
@@ -395,62 +394,10 @@ const gerUserChannelProfile = asyncHandler(async (req, res) => {
     // console.log(channel)
     if (!channel?.length) {
         throw new ApiError(
-            200,
+            401,
             "channel does not exist"
         )
     }
-
-    /*
-    [
- {
-   $match: {
-     username: 'm0hit.jangid'
-   }
- },
-  {
-    $lookup: {
-      from: "subscriptions",
-      localField: "_id",
-      foreignField: "channel",
-      as: "subscribers"
-    }
-  },
-  {
-    $lookup: {
-      from: "subscriptions",
-      localField: "_id",
-      foreignField: "subscriber",
-      as: "subscribedTo"
-    }
-  },
-  {
-    $addFields: {
-       subscribersCount: {$size: "$subscribers" }, 
-      channelsSubscribedToCount: {$size: "$subscribedTo"},
-      isSubscribed: {
-        $cond: {
-          if:{$in: [ObjectId('66dedfab87ac51d0aad50810'), '$subscribers.subscriber']},
-          then: true,
-          else: false,
-        }
-      }
-    }
-  },
-   {
-            $project: {
-                fullname: 1,
-                username: 1,
-                subscribersCount: 1,
-                channelsSubscribedToCount: 1,
-                isSubscribed: 1,
-                avatar: 1,
-                coverImage: 1,
-                email: 1,
-            }
-   }
-]
-    */
-
     return res.status(200)
         .json(
             new ApiResponse(
@@ -462,16 +409,22 @@ const gerUserChannelProfile = asyncHandler(async (req, res) => {
 })
 
 const getWatchHistory = asyncHandler(async (req, res) => {
+    const { id } = req.params
     const user = await User.aggregate([
         {
             $match: {
-                _id: req.authorisedUser._id
-            }
+                _id: new mongoose.Types.ObjectId(
+                    id
+                ),
+            },
+        },
+        {
+            $unwind: "$watchHistory",
         },
         {
             $lookup: {
-                from: 'videos',
-                localField: "watchHistory",
+                from: "videos",
+                localField: "watchHistory._id",
                 foreignField: "_id",
                 as: "watchHistory",
                 pipeline: [
@@ -487,28 +440,38 @@ const getWatchHistory = asyncHandler(async (req, res) => {
                                         fullName: 1,
                                         username: 1,
                                         avatar: 1,
-                                    }
+                                    },
                                 },
-                                {
-                                    $project: {
-                                        owner: {
-                                            $first: '$owner'
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    }
-                ]
-            }
-        }
+                            ],
+                        },
+                    },
+                ],
+            },
+        },
+        {
+            $unwind: "$watchHistory",
+        },
+        {
+            $project: {
+                owner: "$watchHistory.owner",
+                _id: "$watchHistory._id",
+                title: "$watchHistory.title",
+                description:
+                    "$watchHistory.videoDescription",
+                duration: "$watchHistory.duration",
+                videoThumbnail:
+                    "$watchHistory.videoThumbnail",
+                videoFile: "$watchHistory.videoFile",
+                views: "$watchHistory.views"
+            },
+        },
     ])
     // console.log(user)
     return res.status(200)
         .json(
             new ApiResponse(
                 200,
-                user[0],
+                user,
                 "watch history fetched successfully"
             )
         )

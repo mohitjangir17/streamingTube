@@ -2,6 +2,7 @@ import e from "express";
 import cors from 'cors'
 import cookieParser from 'cookie-parser'
 import bodyParser from "body-parser";
+import { errorHandler } from "./middlewares/ApiErrorHandler.js";
 
 const app = e();
 
@@ -13,7 +14,6 @@ app.use(cors({
     origin: process.env.CORS_ORIGIN,
     credentials: true,
 }))
-
 app.use(cookieParser())
 app.use(e.static('public'))
 
@@ -29,8 +29,9 @@ app.use('/api/v1/users', userRoutes);
 app.use('/api/v1/videos', videoRoutes);
 app.use('/api/v1/subscription', subscriptionRoutes);
 app.use('/api/v1/tweet', tweetRoutes);
-app.use('/api/v1/videos/', commentRoutes);
+app.use('/api/v1/comment/', commentRoutes);
 app.use('/api/v1/like', likeRoutes);
 app.use('/api/v1/playlist', playlistRoutes);
 
+app.use(errorHandler);
 export default app;

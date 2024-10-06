@@ -3,9 +3,16 @@ import { ApiError } from '../utils/ApiError.js'
 import { ApiResponse } from "../utils/ApiResponse.js"
 import { uploadOnCloudinary, deleteVideoFromCloudinary } from "../utils/cloudinary.js"
 import { Video } from "../modals/chaiBackend/video.models.js"
+import mongoose from "mongoose"
 
 const publishVideo = asyncHandler(async (req, res) => {
     const { title, videoDescription } = req.body
+
+    // console.log(title);
+    // console.log(videoDescription);
+    // console.log(req.files.videoThumbnail[0].path);
+    // console.log(req.files.videoFile[0].path);
+
     const loggedInUserId = req.authorisedUser?._id
 
     if (!title) {
@@ -71,10 +78,10 @@ const publishVideo = asyncHandler(async (req, res) => {
 
 const getAllVideos = asyncHandler(async (req, res) => {
     // console.log(req.authorisedUser);
-
+    const { page, limit } = req.query
     const options = {
-        page: 1,
-        limit: 10,
+        page: page || 1,
+        limit: limit || 10,
         sort: { createdAt: - 1, }
 
     }
@@ -99,9 +106,79 @@ const getAllVideos = asyncHandler(async (req, res) => {
         });
 })
 
+const getMyVideos = asyncHandler(async (req, res) => {
+    const { id } = req.params
+    const { page, limit } = req.query
+    const options = {
+        page: page || 1,
+        limit: limit || 10,
+        sort: { createdAt: - 1, }
+
+    }
+    Video
+        .aggregatePaginate(Video.aggregate([
+            {
+                $match: {
+                    owner:
+                        new mongoose.Types.ObjectId(id)
+                }
+            }
+        ]), options)
+        .then((results) => {
+            res
+                .status(200)
+                .json(
+                    new ApiResponse(
+                        200,
+                        results,
+                        'page data fetched sucessfully'
+                    )
+                )
+        })
+        .catch((err) => {
+            throw new ApiError(
+                401,
+                "Something went wrong fetching page data"
+            )
+        });
+})
+
 const getVideoById = asyncHandler(async (req, res) => {
     const { videoId } = req.params
-    const requestedVideo = await Video.findById(videoId)
+    const options = {
+        page: 1,
+        limit: 10,
+        sort: { createdAt: - 1, }
+
+    }
+    const requestedVideo = await Video
+        .aggregatePaginate(Video.aggregate([
+            {
+                $match: {
+                    _id:
+                        new mongoose.Types.ObjectId(videoId)
+                }
+            },
+            {
+                $lookup: {
+                    from: "users",
+                    localField: "owner",
+                    foreignField: "_id",
+                    as: "owner",
+                    pipeline: [
+                        {
+                            $project: {
+                                avatar: 1,
+                                createdAt: 1,
+                                email: 1,
+                                fullName: 1,
+                                username: 1,
+                            }
+                        }
+                    ]
+                }
+            },
+        ]), options)
     if (!requestedVideo) {
         throw new ApiError(
             401,
@@ -286,5 +363,6 @@ export {
     getVideoById,
     updateVideo,
     deleteVideo,
-    togglePublishStatus
+    togglePublishStatus,
+    getMyVideos
 }
