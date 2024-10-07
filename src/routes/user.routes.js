@@ -10,7 +10,8 @@ import {
     updateUserProfilePic,
     updateUserCoverImage,
     gerUserChannelProfile,
-    getWatchHistory
+    getWatchHistory,
+    googleLogin
 } from "../controllers/user.controller.js";
 import { fileUpload } from "../middlewares/multer.middleware.js";
 import { verifyJwt } from "../middlewares/auth.middleware.js";
@@ -30,6 +31,7 @@ router.post('/register',
     ]),
     registerUser);
 router.post('/login', loginUser)
+router.get('/google-login', googleLogin)
 
 // secured routes
 router.post('/logout', verifyJwt, logoutUser)

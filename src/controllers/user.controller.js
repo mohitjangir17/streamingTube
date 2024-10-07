@@ -5,6 +5,8 @@ import { User } from "../modals/chaiBackend/user.models.js"
 import { uploadOnCloudinary } from "../utils/cloudinary.js"
 import jwt from "jsonwebtoken"
 import mongoose, { mongo } from "mongoose"
+import { oauth2client } from '../utils/googleConfig.js'
+import axios from "axios"
 
 const generateRefreshAndAccessToken = async (userId) => {
     try {
@@ -82,6 +84,7 @@ const loginUser = asyncHandler(async (req, res) => {
     if (!username && !email) {
         throw new ApiError(400, "username or email is required")
     }
+
     if (!password) {
         throw new ApiError(400, "All fields are required")
     }
@@ -477,6 +480,58 @@ const getWatchHistory = asyncHandler(async (req, res) => {
         )
 })
 
+const googleLogin = asyncHandler(async (req, res) => {
+    const { code } = req.query
+
+    const googleRes = await oauth2client.getToken(code)
+
+    if (!googleRes) {
+        throw new ApiError(401, "Something went wrong while getting google token")
+    }
+    // console.log(googleRes);
+    oauth2client.setCredentials(googleRes.tokens)
+
+    const userRes = await axios.get(`https://www.googleapis.com/oauth2/v1/userinfo?alt=json&access_token=${googleRes.tokens.access_token}`)
+
+    if (!userRes) {
+        throw new ApiError(401, "Something went wrong while fetching Google User")
+    }
+
+    const { email } = userRes?.data
+
+    const user = await User.findOne({ email: email })
+
+    if (!user) {
+        throw new ApiError(401, "User not found")
+    }
+
+    const { accessToken, refreshToken } = await generateRefreshAndAccessToken(user._id)
+    // extra step
+    const loggedInUser = await User.findById(user.id)
+        .select('-password -refreshToken')
+    // 
+
+    // console.log(loggedInUser);
+    const options = {
+        httpOnly: true,
+        secure: true,
+    }
+
+    return res
+        .status(200)
+        .cookie('accessToken', accessToken, options)
+        .cookie('refreshToken', refreshToken, options)
+        .json(
+            new ApiResponse(
+                200, {
+                user: loggedInUser, accessToken
+                , refreshToken
+            }, "User logged in sucessfully"
+            )
+        )
+
+})
+
 export {
     registerUser,
     loginUser,
@@ -488,5 +543,6 @@ export {
     updateUserProfilePic,
     updateUserCoverImage,
     gerUserChannelProfile,
-    getWatchHistory
+    getWatchHistory,
+    googleLogin
 };
