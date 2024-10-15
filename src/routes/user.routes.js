@@ -30,19 +30,19 @@ router.post('/register',
         }
     ]),
     registerUser);
-router.post('/login', loginUser)
-router.get('/google-login', googleLogin)
+router.post('/login', loginUser);
+router.get('/google-login', googleLogin);
 
 // secured routes
-router.post('/logout', verifyJwt, logoutUser)
-router.get('/get-user', verifyJwt, getCurrentUser)
-router.post('/refresh-token', refreshAccessToken)
-router.post('/change-password', verifyJwt, changeCurrentPassword)
-router.patch('/update-profile', verifyJwt, updateAccountDetails)
-router.patch('/update-profile-picture', verifyJwt, fileUpload.single("avatar"), updateUserProfilePic)
-router.patch('/update-cover-image', verifyJwt, fileUpload.single("coverImage"), updateUserCoverImage)
-router.get('/c/:username', verifyJwt, gerUserChannelProfile)
-router.get('/:id/history', verifyJwt, getWatchHistory)
+router.post('/logout', verifyJwt, logoutUser);
+router.get('/get-user', verifyJwt, getCurrentUser);
+router.post('/refresh-token', refreshAccessToken);
+router.post('/change-password', verifyJwt, changeCurrentPassword);
+router.patch('/update-profile', verifyJwt, updateAccountDetails);
+router.patch('/update-profile-picture', verifyJwt, fileUpload.single("avatar"), updateUserProfilePic);
+router.patch('/update-cover-image', verifyJwt, fileUpload.single("coverImage"), updateUserCoverImage);
+router.get('/c/:username', verifyJwt, gerUserChannelProfile);
+router.get('/:id/history', verifyJwt, getWatchHistory);
 
 
 export default router;
