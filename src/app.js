@@ -25,6 +25,7 @@ import commentRoutes from './routes/comment.routes.js'
 import likeRoutes from './routes/like.routes.js'
 import playlistRoutes from './routes/playlist.routes.js'
 
+app.get('/', (req, res) => { res.send("Everything Okay") })
 app.use('/api/v1/users', userRoutes);
 app.use('/api/v1/videos', videoRoutes);
 app.use('/api/v1/subscription', subscriptionRoutes);
