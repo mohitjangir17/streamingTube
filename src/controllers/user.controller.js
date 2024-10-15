@@ -8,13 +8,14 @@ import mongoose, { mongo } from "mongoose"
 import { oauth2client } from '../utils/googleConfig.js'
 import axios from "axios"
 
+
+
 const generateRefreshAndAccessToken = async (userId) => {
     try {
         const user = await User.findById(userId)
 
         const accessToken = await user.generateAccessToken()
         const refreshToken = await user.generateRefreshToken()
-        // console.log("RefreshToken:", refreshToken)
         user.refreshToken = refreshToken
         await user.save({ validateBeforeSave: false })
 
@@ -211,6 +212,7 @@ const changeCurrentPassword = asyncHandler(async (req, res) => {
     if (!currentPassword) {
         throw new ApiError(401, "Current password is required")
     }
+
     if (newPassword !== confirmPassword) {
         throw new ApiError(401, "New password did not match")
     }
@@ -502,7 +504,7 @@ const googleLogin = asyncHandler(async (req, res) => {
     const user = await User.findOne({ email: email })
 
     if (!user) {
-        throw new ApiError(401, "User not found")
+        throw new ApiError(401, "Google account does  not exist")
     }
 
     const { accessToken, refreshToken } = await generateRefreshAndAccessToken(user._id)
