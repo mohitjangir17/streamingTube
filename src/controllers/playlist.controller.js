@@ -81,9 +81,6 @@ const getPlaylistById = asyncHandler(async (req, res) => {
                 }
             },
             {
-                $unwind: '$playlistVideos'
-            },
-            {
                 $lookup: {
                     from: 'videos',
                     localField: 'playlistVideos._id',
@@ -91,26 +88,6 @@ const getPlaylistById = asyncHandler(async (req, res) => {
                     as: 'videoData'
                 }
             },
-            {
-                $unwind: '$videoData'
-            },
-            {
-                $project: {
-                    _id: 1,
-                    name: 1,
-                    description: 1,
-                    totalVideosCount: 1,
-                    createdAt: 1,
-                    playlistVideos: '$videoData'
-                    // video_id: '$videoData._id',
-                    // videoTitle: '$videoData.title',
-                    // videoDescription: '$videoData.videoDescription',
-                    // videoFile: '$videoData.videoFile',
-                    // videoThumbnail: '$videoData.videoThumbnail',
-                    // videoDuration: '$videoData.videoDuration',
-                    // videocreatedAt: '$videoData.createdAt',
-                }
-            }
         ])
         return res
             .status(200)
@@ -131,7 +108,7 @@ const getPlaylistById = asyncHandler(async (req, res) => {
 
 const addVideoToPlaylist = asyncHandler(async (req, res) => {
     const { playlistId, videoId } = req.params
-    console.log("pid:", playlistId, 'vid:', videoId);
+    // console.log("pid:", playlistId, 'vid:', videoId);
 
     const isVideoExists = await Playlist.find({
         videos: { _id: videoId }
