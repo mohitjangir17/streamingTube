@@ -9,7 +9,7 @@ import {
 const router = Router();
 
 router.post('/:channelId/subscribe', verifyJwt, toggleSubscription)
-router.get('/:channelId/get-subscribers', verifyJwt, getUserChannelSubscribers)
+router.get('/:channelId/get-subscribers', getUserChannelSubscribers)
 router.get('/:subscriberId/subscribed-to', verifyJwt, getSubscribedChannels)
 
 export default router;
