@@ -422,11 +422,16 @@ const getWatchHistory = asyncHandler(async (req, res) => {
             $unwind: "$watchHistory",
         },
         {
+            $sort: {
+                "watchHistory.timestamp": -1
+            }
+        },
+        {
             $lookup: {
                 from: "videos",
                 localField: "watchHistory._id",
                 foreignField: "_id",
-                as: "watchHistory",
+                as: "watchHistoryData",
                 pipeline: [
                     {
                         $lookup: {
@@ -445,30 +450,32 @@ const getWatchHistory = asyncHandler(async (req, res) => {
                             ],
                         },
                     },
+                    {
+                        $unwind: "$owner"
+                    }
                 ],
             },
         },
         {
-            $unwind: "$watchHistory",
+            $unwind: "$watchHistoryData",
         },
         {
             $project: {
-                owner: "$watchHistory.owner",
-                _id: "$watchHistory._id",
-                title: "$watchHistory.title",
+                owner: "$watchHistoryData.owner",
+                _id: "$watchHistoryData._id",
+                title: "$watchHistoryData.title",
                 description:
-                    "$watchHistory.videoDescription",
-                duration: "$watchHistory.duration",
+                    "$watchHistoryData.videoDescription",
+                duration: "$watchHistoryData.duration",
                 videoThumbnail:
-                    "$watchHistory.videoThumbnail",
-                videoFile: "$watchHistory.videoFile",
-                views: "$watchHistory.views",
-                timestamp: '$watchHistory.timestamp'
+                    "$watchHistoryData.videoThumbnail",
+                videoFile: "$watchHistoryData.videoFile",
+                views: "$watchHistoryData.views",
+                // wholeNewid: "$watchHistory._id",
+                // timestamp: '$watchHistory.timestamp'
             },
         },
-        // {
-        //     $sort: { timestamp: -1 }
-        // }
+
     ])
     // console.log(user)
     return res.status(200)
