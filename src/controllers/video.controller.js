@@ -4,6 +4,7 @@ import { ApiResponse } from "../utils/ApiResponse.js"
 import { uploadOnCloudinary, deleteVideoFromCloudinary } from "../utils/cloudinary.js"
 import { Video } from "../modals/chaiBackend/video.models.js"
 import mongoose from "mongoose"
+import { User } from "../modals/chaiBackend/user.models.js"
 
 const publishVideo = asyncHandler(async (req, res) => {
     const { title, videoDescription } = req.body
@@ -197,6 +198,25 @@ const getVideoById = asyncHandler(async (req, res) => {
         )
 })
 
+const videoCountInc = asyncHandler(async (req, res) => {
+    const { videoId } = req.params
+    // console.log('count Increased for : ', videoId);
+    const incVideoCount = await Video.findByIdAndUpdate(videoId, { $inc: { views: 1 } }, { new: true });
+    if (!incVideoCount) {
+        throw new ApiError(400, 'Something went wrong while updating video count')
+    } else {
+        return res
+            .status(200)
+            .json(
+                new ApiResponse(
+                    200,
+                    incVideoCount,
+                    "Video count updated!!!"
+                )
+            )
+    }
+})
+
 const updateVideo = asyncHandler(async (req, res) => {
     const { videoId } = req.params
     if (!videoId) {
@@ -340,7 +360,7 @@ const togglePublishStatus = asyncHandler(async (req, res) => {
 
     if (!updatedState) {
         throw ApiError(
-            201,
+            401,
             "unable to update the published state"
         )
 
@@ -357,12 +377,52 @@ const togglePublishStatus = asyncHandler(async (req, res) => {
     }
 })
 
+const addVideoToUserHistory = asyncHandler(async (req, res) => {
+    const { userId, videoId } = req.params
+    // console.log(userId, videoId)
+    if (!userId || !videoId) {
+        throw ApiError(
+            401,
+            "required params are missing"
+        )
+    }
+
+    await User.updateOne(
+        { _id: userId },
+        { $pull: { watchHistory: { _id: videoId } } }
+    );
+
+    const updateVideoHistory = await User.updateOne(
+        { _id: userId },
+        { $push: { watchHistory: { _id: videoId, timestamp: new Date() } } }
+    );
+    // console.log(updateVideoHistory)
+    if (!updateVideoHistory) {
+        throw ApiError(
+            401,
+            "unable to update History"
+        )
+    } else {
+        return res
+            .status(200)
+            .json(
+                new ApiResponse(
+                    201,
+                    updateVideoHistory,
+                    'Video added to history!!!'
+                )
+            )
+    }
+})
+
 export {
     publishVideo,
     getAllVideos,
     getVideoById,
+    videoCountInc,
     updateVideo,
     deleteVideo,
     togglePublishStatus,
-    getMyVideos
+    getMyVideos,
+    addVideoToUserHistory
 }

@@ -5,10 +5,12 @@ import {
     publishVideo,
     getAllVideos,
     getVideoById,
+    videoCountInc,
     updateVideo,
     deleteVideo,
     togglePublishStatus,
-    getMyVideos
+    getMyVideos,
+    addVideoToUserHistory
 } from "../controllers/video.controller.js"
 
 const router = Router();
@@ -29,6 +31,8 @@ router.post('/publish-video',
 router.get('/', getAllVideos)
 router.get('/:id/my-videos', getMyVideos)
 router.get('/:videoId/', getVideoById)
+router.patch('/:videoId/countIncment', videoCountInc)
+router.patch('/:userId/:videoId/addVideoToUserHistory', addVideoToUserHistory)
 router.patch('/:videoId/update-video', verifyJwt, fileUpload.single('videoThumbnail'), updateVideo)
 router.delete('/:videoId/delete-video', verifyJwt, deleteVideo)
 router.patch('/:videoId/update-publishedstatus', verifyJwt, togglePublishStatus)

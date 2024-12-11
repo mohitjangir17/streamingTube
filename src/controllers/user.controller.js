@@ -462,9 +462,13 @@ const getWatchHistory = asyncHandler(async (req, res) => {
                 videoThumbnail:
                     "$watchHistory.videoThumbnail",
                 videoFile: "$watchHistory.videoFile",
-                views: "$watchHistory.views"
+                views: "$watchHistory.views",
+                timestamp: '$watchHistory.timestamp'
             },
         },
+        // {
+        //     $sort: { timestamp: -1 }
+        // }
     ])
     // console.log(user)
     return res.status(200)
