@@ -41,7 +41,11 @@ const userSchema = new Schema(
             id: {
                 type: Schema.Types.ObjectId,
                 ref: "Video"
-            }
+            },
+            timestamp: {
+                type: Date,
+                default: Date.now,
+            },
         }],
         refreshToken: {
             type: String
